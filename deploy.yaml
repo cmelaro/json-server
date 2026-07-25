@@ -1,0 +1,57 @@
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  labels:
+    app: json-server
+  name: json-server
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: json-server
+  strategy: {}
+  template:
+    metadata:
+      labels:
+        app: json-server
+    spec:
+      containers:
+      - image: cmelaro/json-server:v1-beta
+        name: json-server
+        resources: {}
+        volumeMounts:
+        - name: config-volume1
+          mountPath: /data
+        - name: config-volume2
+          mountPath: /json-server/public
+      volumes:
+        - name: config-volume1
+          configMap:
+            name: json-server
+            items:
+            - key: db.json
+              path: db.json
+        - name: config-volume2
+          configMap:
+            name: json-server
+            items:
+            - key: test.html
+              path: test.html
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: json-server
+  name: json-server
+spec:
+  ports:
+  - port: 8000
+    protocol: TCP
+    targetPort: 8000
+  selector:
+    app: json-server
+status:
+  loadBalancer: {}
